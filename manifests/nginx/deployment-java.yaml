@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-deployment
+  labels:
+    app: java-app
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+      - name: java-app
+        image: ghcr.io/ravichaudhary11/fluxxd2-test:ed9e868dcfcfcf43a8002651fe47ef4ce5e3c70e
+        ports:
+        - containerPort: 8080
+
