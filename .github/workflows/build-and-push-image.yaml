@@ -89,7 +89,7 @@ jobs:
         id: define_artifact
         run: |
           echo "OCI_REGISTRY=ghcr.io/${{ github.repository_owner }}" >> $GITHUB_ENV
-          echo "OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
+          echo "OCI_ARTIFACT_REF=\${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
           echo "NEW_OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
       
       - name: Pull and unpack OCI artifact
