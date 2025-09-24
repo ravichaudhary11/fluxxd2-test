@@ -1,7 +1,7 @@
 public class HelloWorld {
     public static void main(String[] args) {
         while (true) {
-            System.out.println("Hello World from Java! testtwo");
+            System.out.println("Hello World from Java! testthree");
             try {
                 Thread.sleep(1000); // Print every second
             } catch (InterruptedException e) {
