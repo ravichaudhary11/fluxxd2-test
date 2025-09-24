@@ -23,5 +23,5 @@ jobs:
       - name: Package and Push YAML
         run: |
           oras push ghcr.io/${{ github.repository_owner }}/java:latest \
-            --artifact-type application/vnd.cncf.helm.config.v1+json \
-            ./manifests:application/vnd.cncf.helm.chart.content.v1.tar+gzip
+            --artifact-type application/vnd.cncf.flux.content.v1.tar+gzip \
+            ./manifests:application/vnd.cncf.flux.content.v1.tar+gzip
