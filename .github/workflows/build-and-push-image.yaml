@@ -69,7 +69,8 @@ jobs:
     needs: build-and-push # This job depends on the 'build' job
     if: needs.build-and-push.result == 'success'
     env:
-      IMG_NAME: ${{ github.repository }}    
+      IMG_NAME: ${{ github.repository }} 
+      OCI_REGISTRY: ghcr.io/${{ github.repository_owner }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -88,8 +89,7 @@ jobs:
       - name: Define registry and artifact
         id: define_artifact
         run: |
-          echo "OCI_REGISTRY=ghcr.io/${{ github.repository_owner }}" >> $GITHUB_ENV
-          echo "OCI_ARTIFACT_REF=\${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
+          echo "OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
           echo "NEW_OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
       
       - name: Pull and unpack OCI artifact
