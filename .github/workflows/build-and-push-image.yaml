@@ -65,6 +65,8 @@ jobs:
 # new job to create PR in main branch to update the manifest with latest image tag
   create-pr:
     runs-on: ubuntu-latest
+    needs: build-and-push # This job depends on the 'build' job
+    if: needs.build-and-push.result == 'success'
     env:
       IMG_NAME: ${{ github.repository }}    
     steps:
