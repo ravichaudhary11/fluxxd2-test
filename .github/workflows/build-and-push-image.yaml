@@ -95,23 +95,16 @@ jobs:
       - name: Pull and unpack OCI artifact
         run: |
           mkdir -p extracted-artifact
-          oras pull ${{ env.OCI_ARTIFACT_REF }} -o extracted-artifact/
-          # oras will pull the files into the specified directory.
-          # For some artifacts, especially those with custom media types, you may need to specify the media type with `--media-type`.
+          oras pull ${{ env.OCI_ARTIFACT_REF }} -o .
       
       - name: Modify files inside the artifact
         run: |
-          # The artifact contents are now in the 'extracted-artifact' directory.
-          # Perform your modifications using standard shell commands.
-          sed -i "s|ghcr.io/ravichaudhary11/fluxxd2-test:.*|ghcr.io/ravichaudhary11/fluxxd2-test:${{ env.IMAGE_TAG }}|g" extracted-artifact/manifests/java-app/deployment-java.yaml
-          #echo "This file was modified by a GitHub Action." >> extracted-artifact/your-file-to-modify.txt
-          cat extracted-artifact//manifests/java-app/deployment-java.yaml
+          sed -i "s|ghcr.io/ravichaudhary11/fluxxd2-test:.*|ghcr.io/ravichaudhary11/fluxxd2-test:${{ env.IMAGE_TAG }}|g" manifests/java-app/deployment-java.yaml
+          cat manifests/java-app/deployment-java.yaml
       
       - name: Repackage and push the new OCI artifact
         run: |
-          # Use oras to push the modified files back to the registry with a new tag.
-          # The content type here is an example; adjust it to match your artifact type.
-          oras push ${{ env.NEW_OCI_ARTIFACT_REF }} extracted-artifact/manifests:application/vnd.cncf.flux.content.v1.tar+gzip
+          oras push ${{ env.NEW_OCI_ARTIFACT_REF }} ./manifests:application/vnd.cncf.flux.content.v1.tar+gzip
       
       - name: Verify the new artifact
         run: |
