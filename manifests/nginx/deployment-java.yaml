@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: java-app
-        image: ghcr.io/ravichaudhary11/fluxxd2-test:c26b36101ac996686745a45d60878f3b9548b0f2
+        image: ghcr.io/ravichaudhary11/fluxxd2-test:6b75b64bab7a836201fe44a5ce2b23b11ad38838
         ports:
         - containerPort: 8083
 
