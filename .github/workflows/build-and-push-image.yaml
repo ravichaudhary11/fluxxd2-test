@@ -79,9 +79,6 @@ jobs:
 
       - name: Update image tag in a file (example)
         run: |
-          # Replace 'path/to/your/image-manifest.yaml' with your actual file
-          # and 'your-image:latest' with your image reference
-#          sed -i '/^ *image:$/{n;s|^ *tag:.*$|    tag: ${{env.IMAGE_TAG}}|;}' manifests/nginx/deployment-java.yaml
           sed -i "s|ghcr.io/${{ env.IMAGE_NAME}}:.*|ghcr.io/${{ env.IMAGE_NAME}}:${{ env.IMAGE_TAG }}|g" manifests/nginx/deployment-java.yaml
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
