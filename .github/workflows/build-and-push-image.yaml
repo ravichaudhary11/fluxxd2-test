@@ -102,7 +102,7 @@ jobs:
       - name: Modify files inside the artifact
         run: |
           sed -i "s|ghcr.io/ravichaudhary11/fluxxd2-test:.*|ghcr.io/ravichaudhary11/fluxxd2-test:${{ env.IMAGE_TAG }}|g" manifests/java-app/deployment-java.yaml
-          cat manifests/java-app/deployment-java.yaml
+          cat manifests/java-app/deployment-java1.yaml
       
       - name: Repackage and push the new OCI artifact
         run: |
