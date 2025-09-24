@@ -8,39 +8,20 @@ on:
     paths:
       - 'manifests/**'
 jobs:
-  flux-push:
-    strategy:
-      fail-fast: false
-      matrix:
-        component:
-          - nginx
+  package-yaml:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write # for pushing
-      id-token: write # for signing
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install flux
-        uses: controlplaneio-fluxcd/distribution/actions/setup@main
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v3
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push artifact
-        uses: controlplaneio-fluxcd/distribution/actions/push@main
-        id: push
-        with:
-          repository: ghcr.io/${{ github.repository }}/${{ matrix.component }}
-          path: "./manifests/${{ matrix.component }}"
-          diff-tag: latest
-      - name: Sign artifact
-        if: steps.push.outputs.pushed == 'true'
-        run: cosign sign --yes $DIGEST_URL
-        env:
-          DIGEST_URL: ${{ steps.push.outputs.digest-url }}
+
+      - name: Setup ORAS CLI
+        uses: oras-project/setup-oras@v1
+
+      - name: Log in to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Package and Push YAML
+        run: |
+          oras push ghcr.io/${{ github.repository_owner }}/java:latest \
+            --artifact-type application/vnd.cncf.helm.config.v1+json \
+            ./manifests:application/vnd.cncf.helm.chart.content.v1.tar+gzip
