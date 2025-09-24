@@ -6,11 +6,14 @@ on:
       - main
     paths:
       - 'application-java/**'
+  workflow_run:
+    workflows: ["push-artifact"]
+    types:
+      - completed
 
   workflow_dispatch: {}
 
 permissions:
-  pull-requests: write
   contents: write
   packages: write
   id-token: write
@@ -63,8 +66,8 @@ jobs:
           tags: ghcr.io/${{ env.IMG_NAME }}:${{ env.IMAGE_TAG }}
           platforms: linux/amd64,linux/arm64
 
-# new job to modify package and repackage
-  re-packaging:
+# new job to modify package and repackage for non-prod
+  re-packaging-non-prod:
     runs-on: ubuntu-latest
     needs: build-and-push # This job depends on the 'build' job
     if: needs.build-and-push.result == 'success'
@@ -90,11 +93,10 @@ jobs:
         id: define_artifact
         run: |
           echo "OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
-          echo "NEW_OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:latest" >> $GITHUB_ENV
+          echo "NEW_OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:non-prod" >> $GITHUB_ENV
       
       - name: Pull and unpack OCI artifact
         run: |
-          mkdir -p extracted-artifact
           oras pull ${{ env.OCI_ARTIFACT_REF }} -o .
       
       - name: Modify files inside the artifact
@@ -109,6 +111,31 @@ jobs:
       - name: Verify the new artifact
         run: |
           oras manifest fetch ${{ env.NEW_OCI_ARTIFACT_REF }} --plain-http
+
+# promote to prod upon approval
+  re-packaging-prod:
+    runs-on: ubuntu-latest
+    needs: re-packaging-non-prod # This job depends on the 'non-prod repackaging' job
+    if: needs.re-packaging-non-prod.result == 'success'
+    environment: production
+    env:
+      IMG_NAME: ${{ github.repository }} 
+      OCI_REGISTRY: ghcr.io/${{ github.repository_owner }}
+    steps:
+      - name: Setup ORAS
+        uses: oras-project/setup-oras@v1
+      
+      - name: Authenticate with GitHub Packages
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Define registry and artifact
+        id: define_artifact
+        run: |
+          echo "OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:non-prod" >> $GITHUB_ENV
+          echo "NEW_OCI_ARTIFACT_REF=${{ env.OCI_REGISTRY }}/java:prod" >> $GITHUB_ENV
+      - name: Repackage and push the new OCI artifact
+        run: |
+          oras cp ${{ env.OCI_ARTIFACT_REF }} ${{ env.NEW_OCI_ARTIFACT_REF }}
 
 
  
